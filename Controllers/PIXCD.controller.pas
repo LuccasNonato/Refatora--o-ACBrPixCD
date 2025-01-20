@@ -159,6 +159,11 @@ begin
   Result := Self.Create(Contexto);
 end;
 
+function TPIXCD.Retorno: string;
+begin
+  Result := FRetorno;
+end;
+
 function TPIXCD.SolicitarDevolucao(IDPix, IDDevolucao, Descricao: string;
   Natureza: Integer; Valor: Currency): IPIXCD;
 var
