@@ -1,0 +1,1 @@
+Continuação Projeto de refatoração ACBrPixCD apresentado por academia do codigo e ministrado por Alessandro Medeiros aonde todo o codigo, ideias e caminhos dados foi por ele. O projeto sem si em suas aulas acabou ficando incompleto aonde ele deixou para os alunos ou utilizadores continuassem a refatoração.
