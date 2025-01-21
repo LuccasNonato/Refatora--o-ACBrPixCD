@@ -11,7 +11,10 @@ uses
   ACBrJSON,
   System.SysUtils,
   System.AnsiStrings,
-  ACBrUtil.Strings;
+  ACBrUtil.Strings,
+  FMX.Dialogs,
+  Vcl.ExtCtrls,
+  Vcl.Graphics;
 
 Type
   TPIXCD = class(TInterfacedObject, IPIXCD)
@@ -51,7 +54,8 @@ implementation
 
 uses
   system.DateUtils,
-  ACBrUtil;
+  ACBrUtil,
+  ACBrImage;
 
 { TPIXCD }
 
@@ -96,25 +100,56 @@ end;
 
 function TPIXCD.ConsultarCobrancaImediata(TxID: string): IPIXCD;
 begin
-
+  Result := Self;
+  if FACBrPixCD.PSP.epCob.ConsultarCobrancaImediata(TxID, 0) then
+  begin
+    FRetorno := FACBrPixCD.PSP.epCob.CobCompleta.AsJSON;
+  end
+  else
+    FRetorno := FACBrPixCD.PSP.epCob.Problema.AsJSON;
 end;
 
 function TPIXCD.ConsultarCobrancas(DataInicio, DataFinal: TDateTime; Pagina,
   ItensPagina: Integer; CPFCNPJ: String; Status: Integer;
   ComLocalizacao: Boolean): IPIXCD;
+var
+  Ok: Boolean;
+  i: Integer;
 begin
 
+  Ok := FACBrPixCD.PSP.epCob.ConsultarCobrancas(StartOfTheDay(DataInicio),
+          EndOfTheDay(DataFinal),
+          OnlyNumber(CPFCNPJ),
+          ComLocalizacao,
+          TACBrPIXStatusCobranca(Status),
+          Pagina,
+          ItensPagina);
+
+  if Ok then
+  begin
+    FRetorno := FACBrPixCD.PSP.epCob.CobsConsultadas.AsJSON;
+  end
+  else
+    FRetorno := FACBrPixCD.PSP.epCob.Problema.AsJSON;
 end;
 
 function TPIXCD.ConsultarCobrancaVencimento(TxID: string;
   Revisao: Integer): IPIXCD;
 begin
-
+  if FACBrPixCD.PSP.epCobV.ConsultarCobranca(TxID, Revisao) then
+    FRetorno := FACBrPixCD.PSP.epCobV.CobVCompleta.AsJSON
+  else
+    FRetorno  := FACBrPixCD.PSP.epCobV.Problema.AsJSON;
 end;
 
 function TPIXCD.ConsultarDevolucao(IDPix, IDDevolucao: string): IPIXCD;
 begin
-
+  if FACBrPixCD.PSP.epPix.ConsultarDevolucaoPix('', IDPix) then
+  begin
+    FRetorno := FACBrPixCD.PSP.epPix.Devolucao.AsJSON;
+  end
+  else
+    FRetorno := FACBrPixCD.PSP.epPix.Problema.AsJSON;
 end;
 
 constructor TPIXCD.Create(Contexto: IContexto);
@@ -125,8 +160,45 @@ end;
 
 function TPIXCD.CriarCobrancaImediata(Devedor, CPFCNPJ, Pagador, TxID: string;
   Valor: Currency; Podealterarvalor: Boolean): IPIXCD;
+var
+  s, qrcode: String;
+  Ok: Boolean;
+  FImage: TBitmapImage;
 begin
+  Result := Self;
 
+  FImage.Picture.Bitmap := ACBrImage.IsBMP(FImage);
+
+
+  with FACBrPixCD.PSP.epCob.CobSolicitada do
+  begin
+    Clear;
+    s := FACBrPixCD.PSP.ChavePIX;
+    chave := FACBrPixCD.PSP.ChavePIX;
+
+    solicitacaoPagador := Pagador;
+
+    valor.modalidadeAlteracao := Podealterarvalor;
+
+    if (Trim(TxID) <> '') then
+      Ok := FACBrPixCD.PSP.epCob.CriarCobrancaImediata(TxID)
+    else
+    Ok := FACBrPixCD.PSP.epCob.CriarCobrancaImediata;
+
+    if Ok then
+    begin
+      FRetorno := FACBrPixCD.PSP.epCob.CobGerada.AsJSON;
+
+      qrcode := Trim(FACBrPixCD.PSP.epCob.CobGerada.pixCopiaECola);
+      if (qrcode = '') then
+        qrcode := FACBrPixCD.GerarQRCodeDinamico( FACBrPixCD.PSP.epCob.CobGerada.location );
+      PintarQRCode('QRCODE', FImage, qrUTF8BOM);
+    end
+    else
+    FRetorno := FACBrPixCD.PSP.epCob.Problema.AsJSON;
+  end;
+
+  //continuar
 end;
 
 function TPIXCD.CriarCobrancaVencimento(Nome, CPFCNPJ: string;

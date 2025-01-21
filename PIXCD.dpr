@@ -22,7 +22,7 @@ uses
   pixcd.strategyr.shipay in 'PSPBancos.strategyr\pixcd.strategyr.shipay.pas',
   pixcd.strategyr.sicoob in 'PSPBancos.strategyr\pixcd.strategyr.sicoob.pas',
   pixcd.strategyr.sicredi in 'PSPBancos.strategyr\pixcd.strategyr.sicredi.pas',
-  Main.Controller in 'Controllers\Main.Controller.pas',
+  Main.Controller in '..\PIXNovo\Main.Controller.pas',
   PIXCD.controller in 'Controllers\PIXCD.controller.pas';
 
 {$R *.res}

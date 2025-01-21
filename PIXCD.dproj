@@ -317,7 +317,7 @@
         <DCCReference Include="PSPBancos.strategyr\pixcd.strategyr.shipay.pas"/>
         <DCCReference Include="PSPBancos.strategyr\pixcd.strategyr.sicoob.pas"/>
         <DCCReference Include="PSPBancos.strategyr\pixcd.strategyr.sicredi.pas"/>
-        <DCCReference Include="Controllers\Main.Controller.pas"/>
+        <DCCReference Include="..\PIXNovo\Main.Controller.pas"/>
         <DCCReference Include="Controllers\PIXCD.controller.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
